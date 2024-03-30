@@ -1,0 +1,36 @@
+import tweepy
+import os
+
+# Configuración de las credenciales de la API de Twitter
+consumer_key = os.environ.get('TWITTER_CONSUMER_KEY')
+consumer_secret = os.environ.get('TWITTER_CONSUMER_SECRET')
+access_token = os.environ.get('TWITTER_ACCESS_TOKEN')
+access_token_secret = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
+
+# Autenticación con la API de Twitter
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
+# Función para buscar y retuitear tweets con un hashtag específico
+def retweet_hashtag(search_term, num_tweets):
+    for tweet in tweepy.Cursor(api.search, search_term).items(num_tweets):
+        try:
+            tweet.retweet()
+            print(f"Retuiteado tweet de @{tweet.user.screen_name}")
+            
+            # Dar like al tweet
+            tweet.favorite()
+            print(f"Dado like al tweet de @{tweet.user.screen_name}")
+            
+        except tweepy.TweepError as e:
+            print(e.reason)
+            
+        except StopIteration:
+            break
+
+if __name__ == "__main__":
+    search_term = "#python"  # Hashtag a buscar
+    num_tweets = 5  # Número de tweets a retuitear
+    
+    retweet_hashtag(search_term, num_tweets)
